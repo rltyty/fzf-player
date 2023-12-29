@@ -1,0 +1,121 @@
+#!/bin/sh
+set -o nounset                              # Treat unset variables as an error
+set -e                                      # Exit when there is an error
+
+# ---------------------------- HELP MESSAGE ----------------------------
+
+HELP="Usage: ${0##*/}: [-dgh] [-l music_library] \n
+where
+    -d              debug mode
+    -l music_lib    directory where to search music files
+    -g              gui mode
+    -h              show this help
+
+NOTE: .fdignore file in Music folder is used to exclude directories and
+files during \`fd\` search.
+"
+# ---------------------- CONSTANTS AND VARIABLES -----------------------
+
+COLOR_FG_RED="\\e[31m"
+COLOR_FG_GREEN="\\e[32m"
+COLOR_FG_YELLOW="\\e[33m"
+COLOR_FG_BLUE="\\e[34m"
+COLOR_FG_MAGENTA="\\e[35m"
+COLOR_FG_CYAN="\\e[36m"
+ES_BOLD="\\e[1m"
+ES_BLINK="\\e[5m"
+ES_END="\\e[m"
+# \e[nA: move the cursor up to the nth line
+# \e[nF: move the cursor to the begining of the previous nth line
+# \e[nK: erase in line, n=0 or missing: clear from the cursor to
+#        the end of the line; n=1, from the cursor to the begining
+#        of the line; 2: the entire line
+CURSOR_UP_ERASE_LINE="\\e[2A\\e[2K"
+
+# user `fd` rather than `find` as `fzf` search command for two reasons:
+# 1. `fd` respects `.fdignore` file, which can easily exlude files/folders.
+# 2. `fd` can easily specify file extensions of music files to focus on.
+# BTW, to review all file types (by extension) in a directory:
+# fd -t file | awk -F "/" '{n=split($NF, a, "."); print a[n]}' | sort | uniq
+export FZF_DEFAULT_COMMAND="fd -t file -e wav -e ape -e flac -e m4a -e mp3 \
+-e ogg"
+
+debug=0
+music_lib="${HOME}/Music"
+# -vo null: no album art
+# -novideo: only audio info
+# -msglevel all=-1:statusline=5: compolete silence except for timestamp
+player="mplayer -vo null -novideo -msglevel all=-1:statusline=5"
+gui=F
+
+# -------------------- OPTIONS & ARGUMENTS PARSERS ---------------------
+
+while getopts :l:dgh name
+do
+    case $name in
+        d)
+            debug=1
+            ;;
+        l)
+            music_lib="$OPTARG"
+            ;;
+        g)
+            gui=T
+            player=mpv
+            ;;
+        h)
+            printf "$HELP"
+            exit 0
+            ;;
+        :)
+            printf "Missing argument for option [%s].\n" "$OPTARG"
+            printf "$HELP"
+            exit 2
+            ;;
+        ?)
+            printf "Unknown option [%s].\n" "$OPTARG"
+            printf "$HELP"
+            exit 1
+            ;;
+    esac
+done
+
+# ---------------------------- MAIN PROGRAM ----------------------------
+
+[ $debug -eq 1 ] && printf "PID=$$\n"
+cd "$music_lib"
+if [ ! -p ./pipe ]; then
+    mkpipo pipe
+fi
+
+# Press CTRL-Q to quit `fzf-player`
+# Use mplayer's interactive control during it's playing
+while true;
+do
+    song="$(fzf --exact -m)";
+    if [ "$song" == "exit" ]; then
+        exit 0;
+    else
+        title="${song##*/}"
+        # if the song name is too long, cut
+        if [ ${#title} -gt 45 ]; then
+            title="$(echo $title | cut -c -45) ..."
+        fi
+        msg="$COLOR_FG_GREEN$ES_BOLD $ES_BLINK>$ES_END"
+        msg+="$COLOR_FG_GREEN$ES_BOLD Playing $ES_END"
+        msg+="$COLOR_FG_RED $title $ES_END\n"
+        printf "$msg"
+        # the below empty line is intended to feed `mplayer`, for it will
+        # swallow the previous line of the time stamp status line on the
+        # screen after user's interactive control input like 'p' for PAUSE.
+        printf "\n"
+        #$player "$song" > ./pipe
+        $player "$song"
+        printf "$CURSOR_UP_ERASE_LINE"
+    fi
+done
+
+clear
+
+# vim: tw=78:ts=8:sts=4:sw=4:et:ft=sh:norl:
+

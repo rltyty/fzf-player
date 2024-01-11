@@ -11,6 +11,8 @@ where
     -g              gui mode
     -h              show this help
 
+Press <TAB>/<SHIFT><TAB> to make multi-selection and <Enter> to confirm.
+
 NOTE: .fdignore file in Music folder is used to exclude directories and
 files during \`fd\` search.
 "
@@ -45,8 +47,12 @@ music_lib="${HOME}/Music"
 # -vo null: no album art
 # -novideo: only audio info
 # -msglevel all=-1:statusline=5: compolete silence except for timestamp
-player="mplayer -vo null -novideo -msglevel all=-1:statusline=5"
+# -playlist <file>: play a list
+player="mplayer"
+pl="$music_lib/pl.m3u"
+opts="-vo null -novideo -msglevel all=-1:statusline=5 -loop 0 -playlist $pl"
 gui=F
+title_max_len=45
 
 # -------------------- OPTIONS & ARGUMENTS PARSERS ---------------------
 
@@ -85,37 +91,36 @@ done
 [ $debug -eq 1 ] && printf "PID=$$\n"
 cd "$music_lib"
 if [ ! -p ./pipe ]; then
-    mkpipo pipe
+    mkfifo pipe
 fi
 
 # Press CTRL-Q to quit `fzf-player`
 # Use mplayer's interactive control during it's playing
 while true;
 do
-    song="$(fzf --exact -m)";
-    if [ "$song" == "exit" ]; then
-        exit 0;
-    else
+    clear
+    q=$(fzf --exact -m);
+    printf "$q\n" > pl.m3u
+    msg="\nCommand Keys: Next(<Enter>), Pause/Play(<Space>), Quit(q)\n\n"
+    msg+="$COLOR_FG_RED$ES_BOLD"
+    msg+="Play queue(repeat):$ES_END\n"
+    IFS=$'\n'
+    for song in $q;
+    do
         title="${song##*/}"
-        # if the song name is too long, cut
-        if [ ${#title} -gt 45 ]; then
-            title="$(echo $title | cut -c -45) ..."
+        #if the song name is too long, cut to
+        if [ ${#title} -gt $title_max_len ]; then
+            title="$(echo $title | cut -c -$title_max_len) ..."
         fi
-        msg="$COLOR_FG_GREEN$ES_BOLD $ES_BLINK>$ES_END"
-        msg+="$COLOR_FG_GREEN$ES_BOLD Playing $ES_END"
-        msg+="$COLOR_FG_RED $title $ES_END\n"
-        printf "$msg"
-        # the below empty line is intended to feed `mplayer`, for it will
-        # swallow the previous line of the time stamp status line on the
-        # screen after user's interactive control input like 'p' for PAUSE.
-        printf "\n"
-        #$player "$song" > ./pipe
-        $player "$song"
-        printf "$CURSOR_UP_ERASE_LINE"
-    fi
+        msg+="$COLOR_FG_GREEN$ES_BOLD$title$ES_END\n"
+    done
+    printf "$msg"
+    # the below empty line is intended to feed `mplayer`, for it will
+    # swallow the previous line of the time stamp status line on the
+    # screen after user's interactive control input like 'p' for PAUSE.
+    printf "\n"
+    sh -c "$player $opts"
 done
-
-clear
 
 # vim: tw=78:ts=8:sts=4:sw=4:et:ft=sh:norl:
 

@@ -13,7 +13,9 @@ A simple CLI music player wrapper with fast search
         -g              gui mode
         -h              show this help
 
-    Press `CTRL-q` to quit the command
+    Press `<CTRL-q>` to quit the command
+    Press `<TAB>`/`<SHIFT-TAB>` for multiple selection.
+    Press `<Enter>` to confirm play queue
 
 NOTE: .fdignore file in Music folder is used to exclude directories and
 files during `fd` search.

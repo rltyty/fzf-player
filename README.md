@@ -5,13 +5,16 @@ A simple CLI music player wrapper with fast search
 
 # Usage
 
-    Usage: fzf-player: [-dgh] [-l music_library]
+    Usage: fzf-player: [-dgh] [-p playlist] [-l music_library]
 
     where
         -d              debug mode
+        -p playlist     just play the list without search
         -l music_lib    directory where to search music files
         -g              gui mode
         -h              show this help
+
+    When "-p playlist" is given, the utility just play the list.
 
     Press `<CTRL-q>` to quit the command
     Press `<TAB>`/`<SHIFT-TAB>` for multiple selection.

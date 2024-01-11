@@ -4,14 +4,17 @@ set -e                                      # Exit when there is an error
 
 # ---------------------------- HELP MESSAGE ----------------------------
 
-HELP="Usage: ${0##*/}: [-dgh] [-l music_library] \n
+HELP="Usage: ${0##*/}: [-dgh] [-l music_library] [-p playlist]\n
 where
     -d              debug mode
+    -p playlist     just play the list without search
     -l music_lib    directory where to search music files
     -g              gui mode
     -h              show this help
 
-Press <TAB>/<SHIFT><TAB> to make multi-selection and <Enter> to confirm.
+Press <TAB>/<SHIFT><TAB> to make multi-selection and <Enter> to play.
+
+When "-p playlist" is given, the utility just play the list.
 
 NOTE: .fdignore file in Music folder is used to exclude directories and
 files during \`fd\` search.
@@ -44,19 +47,20 @@ export FZF_DEFAULT_COMMAND="fd -t file -e wav -e ape -e flac -e m4a -e mp3 \
 
 debug=0
 music_lib="${HOME}/Music"
+pl=${music_lib}/pl.m3u
 # -vo null: no album art
 # -novideo: only audio info
 # -msglevel all=-1:statusline=5: compolete silence except for timestamp
 # -playlist <file>: play a list
 player="mplayer"
-pl="$music_lib/pl.m3u"
-opts="-vo null -novideo -msglevel all=-1:statusline=5 -loop 0 -playlist $pl"
+opts="-vo null -novideo -msglevel all=-1:statusline=5 -loop 0"
 gui=F
 title_max_len=45
+just_play_list=false
 
 # -------------------- OPTIONS & ARGUMENTS PARSERS ---------------------
 
-while getopts :l:dgh name
+while getopts :l:p:dgh name
 do
     case $name in
         d)
@@ -64,6 +68,10 @@ do
             ;;
         l)
             music_lib="$OPTARG"
+            ;;
+        p)
+            pl="$OPTARG"
+            just_play_list=true
             ;;
         g)
             gui=T
@@ -86,21 +94,11 @@ do
     esac
 done
 
-# ---------------------------- MAIN PROGRAM ----------------------------
+# ----------------------------  FUNCTIONS   ----------------------------
 
-[ $debug -eq 1 ] && printf "PID=$$\n"
-cd "$music_lib"
-if [ ! -p ./pipe ]; then
-    mkfifo pipe
-fi
-
-# Press CTRL-Q to quit `fzf-player`
-# Use mplayer's interactive control during it's playing
-while true;
-do
-    clear
-    q=$(fzf --exact -m);
-    printf "$q\n" > pl.m3u
+play() # $1: playlist file
+{
+    q=$(cat "$1")
     msg="\nCommand Keys: Next(<Enter>), Pause/Play(<Space>), Quit(q)\n\n"
     msg+="$COLOR_FG_RED$ES_BOLD"
     msg+="Play queue(repeat):$ES_END\n"
@@ -119,7 +117,31 @@ do
     # swallow the previous line of the time stamp status line on the
     # screen after user's interactive control input like 'p' for PAUSE.
     printf "\n"
-    sh -c "$player $opts"
+    sh -c "$player $opts -playlist $1"
+}
+
+# ---------------------------- MAIN PROGRAM ----------------------------
+
+if $just_play_list; then
+    play "$pl"
+    exit 0
+fi
+
+[ $debug -eq 1 ] && printf "PID=$$\n"
+cd "$music_lib"
+
+if [ ! -p ./pipe ]; then
+    mkfifo pipe
+fi
+
+# Press CTRL-Q to quit `fzf-player`
+# Use mplayer's interactive control during it's playing
+while true;
+do
+    clear
+    q=$(fzf --exact -m);
+    printf "$q\n" > pl.m3u
+    play ./pl.m3u
 done
 
 # vim: tw=78:ts=8:sts=4:sw=4:et:ft=sh:norl:

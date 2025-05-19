@@ -12,9 +12,7 @@ where
     -g              gui mode
     -h              show this help
 
-Press <TAB>/<SHIFT><TAB> to make multi-selection and <Enter> to play.
-
-When "-p playlist" is given, the utility just play the list.
+Press <TAB>/<SHIFT><TAB> to make multi-selection and <Enter> to confirm.
 
 NOTE: .fdignore file in Music folder is used to exclude directories and
 files during \`fd\` search.
@@ -121,6 +119,13 @@ play() # $1: playlist file
 }
 
 # ---------------------------- MAIN PROGRAM ----------------------------
+
+# save the pid of the shell where the player will run, for locating
+# the tmux pane to which send-keys to manipulate the player
+if [ ! -d "$HOME/.local/state/${0##*/}" ]; then
+  mkdir -p "$HOME/.local/state/${0##*/}"
+fi
+printf "$PPID" > "$HOME/.local/state/${0##*/}/tmux.pane.pid"
 
 if $just_play_list; then
     play "$pl"

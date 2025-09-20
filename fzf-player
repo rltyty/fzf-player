@@ -14,8 +14,10 @@ where
 
 Press <TAB>/<SHIFT><TAB> to make multi-selection and <Enter> to confirm.
 
-NOTE: .fdignore file in Music folder is used to exclude directories and
+NOTE:
+1. fdignore file in Music folder is used to exclude directories and
 files during \`fd\` search.
+2. MPlayer keyboard reference: https://sheet.shiar.nl/mplayer
 "
 # ---------------------- CONSTANTS AND VARIABLES -----------------------
 
@@ -25,6 +27,7 @@ COLOR_FG_YELLOW="\\e[33m"
 COLOR_FG_BLUE="\\e[34m"
 COLOR_FG_MAGENTA="\\e[35m"
 COLOR_FG_CYAN="\\e[36m"
+COLOR_REVERSE="\\e[7m"
 ES_BOLD="\\e[1m"
 ES_BLINK="\\e[5m"
 ES_END="\\e[m"
@@ -96,10 +99,11 @@ done
 
 play() # $1: playlist file
 {
+    qtitle="${1##*/}" ; qtitle="${qtitle%.*}"
     q=$(cat "$1")
-    msg="\nCommand Keys: Next(<Enter>), Pause/Play(<Space>), Quit(q)\n\n"
-    msg+="$COLOR_FG_RED$ES_BOLD"
-    msg+="Play queue(repeat):$ES_END\n"
+    msg="\n$COLOR_REVERSE 🎵 ⏮ (<)  ⏭ (>) ⏪ (←) ⏩(→) ⏯ (␣) ⏏︎(q) $ES_END\n\n"
+    msg+="$ES_BOLD$COLOR_FG_RED"
+    msg+="Play Queue(repeat): $COLOR_FG_BLUE $qtitle $ES_END\n"
     IFS=$'\n'
     for song in $q;
     do
@@ -125,7 +129,8 @@ play() # $1: playlist file
 if [ ! -d "$HOME/.local/state/${0##*/}" ]; then
   mkdir -p "$HOME/.local/state/${0##*/}"
 fi
-printf "$PPID" > "$HOME/.local/state/${0##*/}/tmux.pane.pid"
+tmux display-message -p "#S:#{window_id}.%#{pane_id}" > \
+    "$HOME/.local/state/${0##*/}/tmux.tgt"
 
 if $just_play_list; then
     play "$pl"
@@ -145,8 +150,8 @@ while true;
 do
     clear
     q=$(fzf --exact -m);
-    printf "$q\n" > pl.m3u
-    play ./pl.m3u
+    printf "$q\n" > ./now.m3u
+    play ./now.m3u
 done
 
 # vim: tw=78:ts=8:sts=4:sw=4:et:ft=sh:norl:

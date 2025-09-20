@@ -47,7 +47,7 @@ like segmentation fault. Build and install from luit 2.0 [source][1]. On
 Debian 12, the default luit installed is v2.0, so no need to build from
 source.
 
-[1]: <Resources/fzf-player.gif> "screenshot"
+[1]: <Resources/demo.gif> "screenshot"
 [2]: <https://github.com/junegunn/fzf> "fzf"
 [3]: <https://github.com/sharkdp/fd> "fd"
 

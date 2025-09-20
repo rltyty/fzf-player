@@ -1,7 +1,11 @@
 # fzf-player
 A simple CLI music player wrapper with fast search
 
+### Screenshot
 ![][1]
+
+### Demo
+![][2]
 
 # Usage
 

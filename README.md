@@ -36,8 +36,8 @@ It's easy to review all the file types under your music library by:
 # Requirements
 
 - a music player support CLI, e.g. mplayer
-- [fzf][2], A command-line fuzzy finder
-- [fd][3], A simple, fast and user-friendly alternative to 'find'
+- [fzf][3], A command-line fuzzy finder
+- [fd][4], A simple, fast and user-friendly alternative to 'find'
 
 NOTE:
 `Luit` is used to translate character set and solve the "garbled text"
@@ -47,9 +47,10 @@ like segmentation fault. Build and install from luit 2.0 [source][1]. On
 Debian 12, the default luit installed is v2.0, so no need to build from
 source.
 
-[1]: <Resources/demo.gif> "screenshot"
-[2]: <https://github.com/junegunn/fzf> "fzf"
-[3]: <https://github.com/sharkdp/fd> "fd"
+[1]: <Resources/screenshot.png> "screenshot"
+[2]: <Resources/demo.gif> "demo"
+[3]: <https://github.com/junegunn/fzf> "fzf"
+[4]: <https://github.com/sharkdp/fd> "fd"
 
 
 [//]: # (vim: tw=78:ts=8:sts=4:sw=4:noet:ft=markdown:norl:)

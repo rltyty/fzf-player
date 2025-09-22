@@ -47,8 +47,8 @@ export FZF_DEFAULT_COMMAND="fd -t file -e wav -e ape -e flac -e m4a -e mp3 \
 -e ogg"
 
 debug=0
-music_lib="${HOME}/Music"
-pl=${music_lib}/pl.m3u
+music_lib="$HOME/Music"
+pl="$music_lib/now.m3u"
 # -vo null: no album art
 # -novideo: only audio info
 # -msglevel all=-1:statusline=5: compolete silence except for timestamp
@@ -124,13 +124,16 @@ play() # $1: playlist file
 
 # ---------------------------- MAIN PROGRAM ----------------------------
 
-# save the pid of the shell where the player will run, for locating
-# the tmux pane to which send-keys to manipulate the player
-if [ ! -d "$HOME/.local/state/${0##*/}" ]; then
-  mkdir -p "$HOME/.local/state/${0##*/}"
+# If this is running in Tmux, save the id of the pane for easy locating
+# the pane from another pane or outside the tmux so as to send keys to
+# it to control the player.
+if [ -n "${TMUX_PANE-}" ]; then
+  if [ ! -d "$HOME/.local/state/${0##*/}" ]; then
+    mkdir -p "$HOME/.local/state/${0##*/}"
+  fi
+  tmux display-message -t "$TMUX_PANE" -p "#S:#{window_id}.%#{pane_id}" > \
+      "$HOME/.local/state/${0##*/}/tmux.tgt"
 fi
-tmux display-message -p "#S:#{window_id}.%#{pane_id}" > \
-    "$HOME/.local/state/${0##*/}/tmux.tgt"
 
 if $just_play_list; then
     play "$pl"
@@ -150,8 +153,8 @@ while true;
 do
     clear
     q=$(fzf --exact -m);
-    printf "$q\n" > ./now.m3u
-    play ./now.m3u
+    printf "$q\n" > "$pl"
+    play "$pl"
 done
 
 # vim: tw=78:ts=8:sts=4:sw=4:et:ft=sh:norl:

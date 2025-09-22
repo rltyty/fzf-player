@@ -7,8 +7,9 @@ A simple CLI music player wrapper with fast search
 ### Demo
 ![][2]
 
-# Usage
+## Usage
 
+```sh
     Usage: fzf-player: [-dgh] [-p playlist] [-l music_library]
 
     where
@@ -23,21 +24,24 @@ A simple CLI music player wrapper with fast search
     Press `<CTRL-q>` to quit the command
     Press `<TAB>`/`<SHIFT-TAB>` for multiple selection.
     Press `<Enter>` to confirm play queue
+```
 
-NOTE: .fdignore file in Music folder is used to exclude directories and
+***NOTE***: `.fdignore` file in Music folder is used to exclude directories and
 files during `fd` search.
 
-# Audio format support
+## Audio Format Support
 
-This finally depends on the backend player. From the frontend's perspective,
-the script currently respect `wav`, `ape`, `flac`, `m4a`, `mp3`, `ogg`
+It finally depends on the back end player. From the front-end's perspective,
+this wrapper currently respect `wav`, `ape`, `flac`, `m4a`, `mp3`, `ogg`
 
-NOTE:
-It's easy to review all the file types under your music library by:
+***NOTE***
+To review all the file types, via file extension, under your music library:
 
-    fd -t file | awk -F "/" '{n=split($NF, a, "."); print a[n]}' | sort | uniq
+```sh
+fd -t file | awk -F "/" '{n=split($NF, a, "."); print a[n]}' | sort | uniq
+```
 
-# Requirements
+## Requirements
 
 - a music player support CLI, e.g. mplayer
 - [fzf][3], A command-line fuzzy finder

@@ -38,13 +38,15 @@ ES_END="\\e[m"
 #        of the line; 2: the entire line
 CURSOR_UP_ERASE_LINE="\\e[2A\\e[2K"
 
-# user `fd` rather than `find` as `fzf` search command for two reasons:
+# NOTE:
+# Use `fd` rather than `find` as `fzf` search command for two reasons:
 # 1. `fd` respects `.fdignore` file, which can easily exlude files/folders.
 # 2. `fd` can easily specify file extensions of music files to focus on.
 # BTW, to review all file types (by extension) in a directory:
 # fd -t file | awk -F "/" '{n=split($NF, a, "."); print a[n]}' | sort | uniq
-export FZF_DEFAULT_COMMAND="fd -t file -e wav -e ape -e flac -e m4a -e mp3 \
--e ogg"
+# And, "-L" for descending into symlinked directories
+export FZF_DEFAULT_COMMAND="fd -L -t file -e wav -e ape -e flac -e m4a \
+-e mp3 -e ogg"
 
 debug=0
 music_lib="$HOME/Music"
@@ -102,9 +104,10 @@ play() # $1: playlist file
     qtitle="${1##*/}" ; qtitle="${qtitle%.*}"
     q=$(cat "$1")
     msg="\n$COLOR_REVERSE 🎵 ⏮ (<)  ⏭ (>) ⏪ (←) ⏩(→) ⏯ (␣) ⏏︎(q) $ES_END\n\n"
-    msg+="$ES_BOLD$COLOR_FG_RED"
-    msg+="Play Queue(repeat): $COLOR_FG_BLUE $qtitle $ES_END\n"
-    IFS=$'\n'
+    msg="${msg}$ES_BOLD$COLOR_FG_RED"
+    msg="${msg}Play Queue(repeat): $COLOR_FG_BLUE $qtitle $ES_END\n"
+    IFS='
+'
     for song in $q;
     do
         title="${song##*/}"
@@ -112,7 +115,7 @@ play() # $1: playlist file
         if [ ${#title} -gt $title_max_len ]; then
             title="$(echo $title | cut -c -$title_max_len) ..."
         fi
-        msg+="$COLOR_FG_GREEN$ES_BOLD$title$ES_END\n"
+        msg="${msg}$COLOR_FG_GREEN$ES_BOLD$title$ES_END\n"
     done
     printf "$msg"
     # the below empty line is intended to feed `mplayer`, for it will

@@ -122,7 +122,7 @@ play() # $1: playlist file
     # swallow the previous line of the time stamp status line on the
     # screen after user's interactive control input like 'p' for PAUSE.
     printf "\n"
-    sh -c "$player $opts -playlist $1"
+    sh -c "$player $opts -playlist $1 2>/dev/null"
 }
 
 # ---------------------------- MAIN PROGRAM ----------------------------

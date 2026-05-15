@@ -1,10 +1,10 @@
 # fzf-player
-A simple CLI music player wrapper with fast search
+CLI music player wrapper with fuzzy search
 
-### Screenshot
+### Control Interface
 ![][1]
 
-### Demo
+### Create Playlist
 ![][2]
 
 ## Usage
@@ -47,13 +47,16 @@ fd -t file | awk -F "/" '{n=split($NF, a, "."); print a[n]}' | sort | uniq
 - [fzf][3], A command-line fuzzy finder
 - [fd][4], A simple, fast and user-friendly alternative to 'find'
 
-NOTE:
-`Luit` is used to translate character set and solve the "garbled text"
-problem met when visit east Asian BBS. On Debian 11, the default luit(1.1.1)
-installed as a part of x11-utils is too old, may cause unexpected issues
-like segmentation fault. Build and install from luit 2.0 [source][1]. On
-Debian 12, the default luit installed is v2.0, so no need to build from
-source.
+### Mplayer Support
+
+#### Enable single track repeat
+
+Add key bindings in `~/.mplayer/input.conf`:
+```ini
+# l: inf, 1, 2, 3...; L: ..., 3, 2, 1, inf, off
+l loop 1
+L loop -1
+```
 
 [1]: <Resources/screenshot.png> "screenshot"
 [2]: <Resources/demo.gif> "demo"

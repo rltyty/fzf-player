@@ -16,8 +16,12 @@ Press <TAB>/<SHIFT><TAB> to make multi-selection and <Enter> to confirm.
 
 NOTE:
 1. fdignore file in Music folder is used to exclude directories and
-files during \`fd\` search.
+   files during \`fd\` search.
 2. MPlayer keyboard reference: https://sheet.shiar.nl/mplayer
+3. Enable single track repeat by add key bindings in \`~/.mplayer/input.conf\`:
+   # l: inf, 1, 2, 3...; L: ..., 3, 2, 1, inf, off
+   l loop 1
+   L loop -1
 "
 # ---------------------- CONSTANTS AND VARIABLES -----------------------
 
@@ -103,7 +107,7 @@ play() # $1: playlist file
 {
     qtitle="${1##*/}" ; qtitle="${qtitle%.*}"
     q=$(cat "$1")
-    msg="\n$COLOR_REVERSE 🎵 ⏮ (<)  ⏭ (>) ⏪ (←) ⏩(→) ⏯ (␣) ⏏︎(q) $ES_END\n\n"
+    msg="\n$COLOR_REVERSE 🎵 ⏮ (<)  ⏭ (>) ⏪ (←) ⏩(→) ⏯ (␣) 🔂(l) 🔁(L) ⏏︎(q) $ES_END\n\n"
     msg="${msg}$ES_BOLD$COLOR_FG_RED"
     msg="${msg}Play Queue(repeat): $COLOR_FG_BLUE $qtitle $ES_END\n"
     IFS='

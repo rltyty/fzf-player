@@ -1,5 +1,6 @@
 # fzf-player
-CLI music player wrapper with fuzzy search
+
+A lightweight CLI wrapper for a music player with fuzzy search.
 
 ### Control Interface
 ![][1]
